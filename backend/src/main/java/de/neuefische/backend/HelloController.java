@@ -16,8 +16,7 @@ public class HelloController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth instanceof OAuth2AuthenticationToken token) {
-            System.out.println(auth);
-            System.out.println(token.getPrincipal().getAttributes().get("login"));
+            return token.getPrincipal().getAttributes().get("login").toString();
         }
 
         return auth.getName();
