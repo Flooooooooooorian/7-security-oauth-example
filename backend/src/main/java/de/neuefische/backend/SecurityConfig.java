@@ -1,5 +1,6 @@
 package de.neuefische.backend;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -23,7 +25,14 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .sessionManagement(sessions ->
                         sessions.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
-                .oauth2Login(withDefaults());
+                .oauth2Login(withDefaults())
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .logout(logout -> logout.logoutUrl("/api/users/logout")
+                        .logoutSuccessHandler((request, response, authentication) ->
+                                response.setStatus(HttpServletResponse.SC_OK)
+                        ))
+        ;
         return http.build();
     }
 }
