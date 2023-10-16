@@ -5,11 +5,11 @@ function App() {
     function login() {
         const host = window.location.host === 'localhost:5173' ? 'http://localhost:8080': window.location.origin
 
-        window.open(host + '/oauth2/authorization/github', '_blank')
+        window.open(host + '/oauth2/authorization/github', '_self')
     }
 
-    function getHello() {
-        axios.get("/api/hello")
+    function getUser() {
+        axios.get("/api/users/me")
             .then((r) => {
                 console.log(r.data)
             })
@@ -20,7 +20,7 @@ function App() {
         <>
             <div>
                 <button onClick={login}>Login</button>
-                <button onClick={getHello}>Hello</button>
+                <button onClick={getUser}>Me</button>
             </div>
         </>
     )
