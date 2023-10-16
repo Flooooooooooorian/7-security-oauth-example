@@ -9,7 +9,7 @@ function App() {
     }
 
     function getHello() {
-        axios.get("/api/hello")
+        axios.get("/api/users/me")
             .then((r) => {
                 console.log(r.data)
             })
@@ -20,7 +20,7 @@ function App() {
         <>
             <div>
                 <button onClick={login}>Login</button>
-                <button onClick={getHello}>Hello</button>
+                <button onClick={getHello}>Me</button>
             </div>
         </>
     )
