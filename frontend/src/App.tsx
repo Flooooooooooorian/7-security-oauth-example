@@ -18,6 +18,16 @@ function App() {
         window.open(host + '/oauth2/authorization/github', '_self')
     }
 
+    function logout() {
+        axios.post("/api/users/logout")
+            .then(r => {
+                console.log(r)
+            })
+            .catch(e => {
+                console.log(e)
+            })
+    }
+
     function getUser() {
         axios.get("/api/users/me")
             .then((r) => {
@@ -40,7 +50,9 @@ function App() {
                     <button onClick={getUser}>Me</button>
                 </div>}/>
                 <Route element={<ProtectedRoutes user={user}/>}>
-                    <Route path="/profile" element={<p>{user}</p>}/>
+                    <Route path="/profile" element={<div><p>{user}</p>
+                        <button onClick={logout}>Logout</button>
+                    </div>}/>
                 </Route>
             </Routes>
         </>
