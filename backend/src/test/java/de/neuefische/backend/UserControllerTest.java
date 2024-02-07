@@ -24,7 +24,9 @@ class UserControllerTest {
 
         //WHEN
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users/me")
-                        .with(oidcLogin().userInfoToken(token -> token.claim("login", "test-user"))))
+                        .with(oidcLogin()
+                                .idToken(builder -> builder.subject("test-sub"))
+                                .userInfoToken(token -> token.claim("login", "test-user"))))
 
         //THEN
                 .andExpect(status().isOk())

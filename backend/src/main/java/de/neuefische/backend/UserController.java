@@ -1,8 +1,7 @@
 package de.neuefische.backend;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,13 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @GetMapping("me")
-    public String getMe() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth instanceof OAuth2AuthenticationToken token) {
-            return token.getPrincipal().getAttributes().get("login").toString();
-        }
-
-        return auth.getName();
+    public String getMe(@AuthenticationPrincipal OAuth2User principal) {
+        return principal.getAttributes().get("login").toString();
     }
 }

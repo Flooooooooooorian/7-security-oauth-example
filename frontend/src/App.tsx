@@ -20,11 +20,8 @@ function App() {
 
     function logout() {
         axios.post("/api/users/logout")
-            .then(r => {
-                console.log(r)
-            })
-            .catch(e => {
-                console.log(e)
+            .then(() => {
+                setUser(undefined)
             })
     }
 
@@ -33,7 +30,7 @@ function App() {
             .then((r) => {
                 setUser(r.data)
             })
-            .catch(e => e.message)
+            .catch(() => setUser(undefined))
     }
 
     return (
@@ -48,6 +45,7 @@ function App() {
                     }
                     <button onClick={login}>Login</button>
                     <button onClick={getUser}>Me</button>
+                    <button onClick={logout}>Logout</button>
                 </div>}/>
                 <Route element={<ProtectedRoutes user={user}/>}>
                     <Route path="/profile" element={<div><p>{user}</p>
