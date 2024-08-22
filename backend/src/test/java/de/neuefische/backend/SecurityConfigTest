@@ -1,0 +1,61 @@
+package de.neuefische.java.backend.security;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class SecurityConfigTest {
+
+    HttpSecurity httpSecurity = mock(HttpSecurity.class);
+    ArgumentCaptor<Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry>> customizerArgumentCaptor = ArgumentCaptor.forClass(Customizer.class);
+
+    AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry registry = mock(AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry.class);
+    AuthorizeHttpRequestsConfigurer.AuthorizedUrl url = mock(AuthorizeHttpRequestsConfigurer.AuthorizedUrl.class);
+
+    private SecurityConfig securityConfig = new SecurityConfig();
+
+    @Test
+    void testSecurityFilterChain() throws Exception {
+        // GIVEN
+
+        when(httpSecurity.csrf(any())).thenReturn(httpSecurity);
+        when(httpSecurity.sessionManagement(any())).thenReturn(httpSecurity);
+        when(httpSecurity.exceptionHandling(any())).thenReturn(httpSecurity);
+        when(httpSecurity.oauth2Login(any())).thenReturn(httpSecurity);
+        when(httpSecurity.logout(any())).thenReturn(httpSecurity);
+        when(httpSecurity.authorizeHttpRequests(any())).thenReturn(httpSecurity);
+        
+        when(registry.requestMatchers(any(HttpMethod.class), any(String.class))).thenReturn(url);
+        when(registry.requestMatchers(any(String.class))).thenReturn(url);
+        when(registry.anyRequest()).thenReturn(url);
+        when(url.permitAll()).thenReturn(registry);
+        when(url.authenticated()).thenReturn(registry);
+
+        // WHEN
+        securityConfig.securityFilterChain(httpSecurity);
+
+
+        // THEN
+        verify(httpSecurity).authorizeHttpRequests(customizerArgumentCaptor.capture());
+
+        var capturedUrls = customizerArgumentCaptor.getValue();
+
+        capturedUrls.customize(registry);
+
+        InOrder inOrder = inOrder(registry, url);
+
+
+        inOrder.verify(registry).requestMatchers(HttpMethod.POST, "/api/todo");
+        inOrder.verify(url).authenticated();
+        inOrder.verify(registry).requestMatchers("/api/todo/**");
+        inOrder.verify(url).authenticated();
+        inOrder.verify(registry).anyRequest();
+        inOrder.verify(url).permitAll();
+    }
+}
