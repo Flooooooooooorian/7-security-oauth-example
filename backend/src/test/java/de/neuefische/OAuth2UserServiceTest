@@ -1,0 +1,42 @@
+class SecurityConfigTest {
+
+    UserRepository userRepository = mock(UserRepository.class);
+    DefaultOAuth2UserService defaultOAuth2UserService = mock(DefaultOAuth2UserService.class);
+    SecurityConfig securityConfig = new SecurityConfig(userRepository, defaultOAuth2UserService);
+
+
+    @Test
+    void oauth2UserService() {
+        //GIVEN
+
+        //WHEN
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> actual = securityConfig.oauth2UserService();
+
+        ClientRegistration clientRegistration = ClientRegistration
+                .withRegistrationId("test-id")
+                .clientId("client-id")
+                .clientSecret("client-secret")
+                .redirectUri("redirect-uri")
+                .authorizationUri("authorization-uri")
+                .tokenUri("token-uri")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .build();
+        OAuth2AccessToken token = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(), Instant.now());
+        OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration, token);
+
+        when(defaultOAuth2UserService.loadUser(request))
+                .thenReturn(new DefaultOAuth2User(List.of(new SimpleGrantedAuthority("TEst")),
+                        Map.of("test-username-attribute", "user", "id", "test-id", "login", "login-test"),
+                        "test-username-attribute"));
+
+
+        OAuth2User actualUser = actual.loadUser(request);
+        //THEN
+
+        OAuth2User expected = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority("TEst")),
+                Map.of("test-username-attribute", "user", "id", "test-id", "login", "login-test"),
+                "test-username-attribute");
+
+        assertEquals(expected, actualUser);
+    }
+}
